@@ -1,29 +1,182 @@
 [
   {
     "step": 1,
-    "query": "Chào bạn, bạn có thể giới thiệu quy chế học vụ cơ bản của Đại học VinUni không?",
+    "query": "Chào bạn, trước khi đi khám sức khỏe tổng quát tại Vinmec thì tôi cần chuẩn bị những gì?",
     "action_type": "FINAL_ANSWER",
-    "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool.",
-    "output": "[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-    "latency_ms": 2845.93
+    "thought": "Claude đã có đủ thông tin và phản hồi trực tiếp bằng văn bản.",
+    "output": "Chào bạn! Rất vui được hỗ trợ. Dưới đây là những điều bạn nên chuẩn bị trước khi đi khám sức khỏe tổng quát tại Vinmec:\n\n**1. Về thể trạng:**\n- **Nhịn ăn 6-8 tiếng** trước khi khám nếu có chỉ định xét nghiệm máu (đường huyết, mỡ máu...) hoặc siêu âm ổ bụng tổng quát. Bạn có thể uống nước lọc bình thường.\n- **Không uống rượu, bia, cà phê** trong vòng 24h trước khi khám để không ảnh hưởng đến kết quả xét nghiệm.\n- **Ngủ đủ giấc**, tránh thức khuya trước ngày khám.\n- Nếu khám phụ khoa: tránh khám trong kỳ kinh nguyệt, không quan hệ tình dục và không thụt rửa âm đạo trong 1-2 ngày trước khi khám.\n- Nếu cần nội soi dạ dày/đại tràng: cần nhịn ăn lâu hơn (thường 8 tiếng) và có thể cần chuẩn bị làm sạch ruột theo hướng dẫn riêng.\n\n**2. Về giấy tờ, hồ sơ:**\n- Mang theo **CMND/CCCD** và **thẻ BHYT** (nếu có) để làm thủ tục.\n- Mang theo **sổ khám bệnh cũ, kết quả xét nghiệm/chẩn đoán hình ảnh** các lần khám trước (nếu có) để bác sĩ so sánh, đối chiếu.\n- Nếu đang dùng thuốc điều trị bệnh mãn tính, mang theo **đơn thuốc hiện tại** để bác sĩ nắm được tình trạng.\n\n**3. Trang phục:**\n- Nên mặc trang phục rộng rãi, thoải mái, dễ thay đồ khi cần siêu âm, đo điện tim...\n\n**4. Khác:**\n- Phụ nữ mang thai hoặc nghi ngờ mang thai nên báo trước với nhân viên y tế (một số xét nghiệm chẩn đoán hình ảnh có thể cần điều chỉnh).\n- Nên đến sớm khoảng 15-30 phút trước giờ hẹn để làm thủ tục đăng ký.\n\nBạn có muốn mình tra cứu lịch khám và đặt lịch hẹn với bác sĩ chuyên khoa cụ thể nào không? Nếu có, bạn cho mình biết chuyên khoa mong muốn, ngày dự kiến khám và mã bệnh nhân (nếu đã có) nhé!",
+    "latency_ms": 16076.54
   },
   {
     "step": 1,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Hãy tra cứu lịch làm việc còn trống của bác sĩ khoa Tim mạch ngày 15/09/2026.",
     "action_type": "TOOL_EXECUTION",
-    "tool_name": "academic_query",
+    "thought": "Let me look up the cardiology doctor's schedule for September 15, 2026.",
+    "tool_name": "doctor_schedule_query",
     "arguments": {
-      "student_id": "SV2026001"
+      "specialty": "Tim mạch",
+      "date": "15/09/2026"
     },
-    "observation": {},
-    "latency_ms": 799.12
+    "observation": {
+      "status": "SUCCESS",
+      "specialty": "Tim mạch",
+      "doctors": [
+        {
+          "doctor_name": "BS.CKII Nguyễn Minh Tuấn",
+          "hospital": "Vinmec Times City",
+          "available_slots": [
+            "08:00 15/09/2026",
+            "14:00 15/09/2026"
+          ]
+        },
+        {
+          "doctor_name": "ThS.BS Đỗ Thị Lan",
+          "hospital": "Vinmec Times City",
+          "available_slots": [
+            "10:00 15/09/2026"
+          ]
+        }
+      ],
+      "message": "Lịch trống chuyên khoa Tim mạch ngày 15/09/2026 — BS.CKII Nguyễn Minh Tuấn (Vinmec Times City): 08:00 15/09/2026, 14:00 15/09/2026; ThS.BS Đỗ Thị Lan (Vinmec Times City): 10:00 15/09/2026."
+    },
+    "llm_latency_ms": 2720.3,
+    "tool_latency_ms": 1.96,
+    "latency_ms": 2722.26
   },
   {
     "step": 2,
-    "query": "Hãy tra cứu thông tin học vụ của sinh viên SV2026001.",
+    "query": "Hãy tra cứu lịch làm việc còn trống của bác sĩ khoa Tim mạch ngày 15/09/2026.",
     "action_type": "FINAL_ANSWER",
-    "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1).",
-    "latency_ms": 10.0
+    "thought": "Claude đã có đủ thông tin và phản hồi trực tiếp bằng văn bản.",
+    "output": "Dưới đây là lịch khám còn trống của chuyên khoa **Tim mạch** tại **Vinmec Times City** vào ngày **15/09/2026**:\n\n| Bác sĩ | Cơ sở | Khung giờ còn trống |\n|---|---|---|\n| BS.CKII Nguyễn Minh Tuấn | Vinmec Times City | 08:00 và 14:00 |\n| ThS.BS Đỗ Thị Lan | Vinmec Times City | 10:00 |\n\nAnh/chị muốn đặt lịch với bác sĩ nào và khung giờ nào ạ? Nếu có, vui lòng cho em xin mã bệnh nhân để tiến hành đặt lịch giúp anh/chị.",
+    "latency_ms": 4111.6
+  },
+  {
+    "step": 1,
+    "query": "Đặt lịch khám cho bệnh nhân BN2026001 với BS.CKII Nguyễn Minh Tuấn vào lúc 14:00 15/09/2026.",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Since the user specified both the doctor and the time explicitly, I don't need to query availability first—I can proceed directly to scheduling the appointment.",
+    "tool_name": "schedule_appointment",
+    "arguments": {
+      "patient_id": "BN2026001",
+      "doctor_name": "BS.CKII Nguyễn Minh Tuấn",
+      "datetime_str": "14:00 15/09/2026"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "booking_id": "VM-BN2026001-1400",
+      "patient_id": "BN2026001",
+      "patient_name": "Lê Hoàng Nam",
+      "doctor_name": "BS.CKII Nguyễn Minh Tuấn",
+      "hospital": "Vinmec Times City",
+      "datetime": "14:00 15/09/2026",
+      "message": "Đặt lịch thành công cho bệnh nhân Lê Hoàng Nam (BN2026001) với BS.CKII Nguyễn Minh Tuấn tại Vinmec Times City vào lúc 14:00 15/09/2026."
+    },
+    "llm_latency_ms": 3044.54,
+    "tool_latency_ms": 1.43,
+    "latency_ms": 3045.97
+  },
+  {
+    "step": 2,
+    "query": "Đặt lịch khám cho bệnh nhân BN2026001 với BS.CKII Nguyễn Minh Tuấn vào lúc 14:00 15/09/2026.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Claude đã có đủ thông tin và phản hồi trực tiếp bằng văn bản.",
+    "output": "Đặt lịch thành công! ✅\n\n**Thông tin lịch khám:**\n- **Mã đặt lịch:** VM-BN2026001-1400\n- **Bệnh nhân:** Lê Hoàng Nam (BN2026001)\n- **Bác sĩ:** BS.CKII Nguyễn Minh Tuấn\n- **Địa điểm:** Vinmec Times City\n- **Thời gian:** 14:00, ngày 15/09/2026\n\n**Lưu ý khi đi khám:**\n- Vui lòng có mặt trước giờ hẹn 15-30 phút để làm thủ tục.\n- Mang theo CMND/CCCD, thẻ BHYT (nếu có) và hồ sơ bệnh án cũ (nếu có).\n- Nếu cần xét nghiệm, nên nhịn ăn theo hướng dẫn (nếu được yêu cầu trước đó).\n\nChúc bệnh nhân sức khỏe! Nếu cần hỗ trợ thêm, cứ nhắn cho tôi nhé.",
+    "latency_ms": 5921.15
+  },
+  {
+    "step": 1,
+    "query": "Tôi là bệnh nhân BN2026002, dạo này tôi hay bị đau họng và ù tai. Hãy tìm bác sĩ khoa Tai Mũi Họng còn lịch trống sớm nhất ngày 16/09/2026 và đặt lịch khám luôn cho tôi.",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "I need to check the ENT doctor's schedule for September 16, 2026 first.",
+    "tool_name": "doctor_schedule_query",
+    "arguments": {
+      "specialty": "Tai Mũi Họng",
+      "date": "16/09/2026"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "specialty": "Tai Mũi Họng",
+      "doctors": [
+        {
+          "doctor_name": "TS.BS Vũ Thanh Mai",
+          "hospital": "Vinmec Times City",
+          "available_slots": [
+            "10:30 16/09/2026",
+            "16:00 16/09/2026"
+          ]
+        },
+        {
+          "doctor_name": "BS.CKI Hoàng Văn Đức",
+          "hospital": "Vinmec Smart City",
+          "available_slots": [
+            "08:00 16/09/2026"
+          ]
+        }
+      ],
+      "message": "Lịch trống chuyên khoa Tai Mũi Họng ngày 16/09/2026 — TS.BS Vũ Thanh Mai (Vinmec Times City): 10:30 16/09/2026, 16:00 16/09/2026; BS.CKI Hoàng Văn Đức (Vinmec Smart City): 08:00 16/09/2026."
+    },
+    "llm_latency_ms": 3149.81,
+    "tool_latency_ms": 0.3,
+    "latency_ms": 3150.11
+  },
+  {
+    "step": 2,
+    "query": "Tôi là bệnh nhân BN2026002, dạo này tôi hay bị đau họng và ù tai. Hãy tìm bác sĩ khoa Tai Mũi Họng còn lịch trống sớm nhất ngày 16/09/2026 và đặt lịch khám luôn cho tôi.",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "The earliest available slot is 08:00 on 16/09/2026 with BS.CKI Hoàng Văn Đức, so I'll go ahead and book that appointment.",
+    "tool_name": "schedule_appointment",
+    "arguments": {
+      "patient_id": "BN2026002",
+      "doctor_name": "BS.CKI Hoàng Văn Đức",
+      "datetime_str": "08:00 16/09/2026"
+    },
+    "observation": {
+      "status": "SUCCESS",
+      "booking_id": "VM-BN2026002-0800",
+      "patient_id": "BN2026002",
+      "patient_name": "Phạm Thu Hà",
+      "doctor_name": "BS.CKI Hoàng Văn Đức",
+      "hospital": "Vinmec Smart City",
+      "datetime": "08:00 16/09/2026",
+      "message": "Đặt lịch thành công cho bệnh nhân Phạm Thu Hà (BN2026002) với BS.CKI Hoàng Văn Đức tại Vinmec Smart City vào lúc 08:00 16/09/2026."
+    },
+    "llm_latency_ms": 2469.7,
+    "tool_latency_ms": 0.29,
+    "latency_ms": 2469.99
+  },
+  {
+    "step": 3,
+    "query": "Tôi là bệnh nhân BN2026002, dạo này tôi hay bị đau họng và ù tai. Hãy tìm bác sĩ khoa Tai Mũi Họng còn lịch trống sớm nhất ngày 16/09/2026 và đặt lịch khám luôn cho tôi.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Claude đã có đủ thông tin và phản hồi trực tiếp bằng văn bản.",
+    "output": "Đã đặt lịch khám thành công cho bạn:\n\n- **Bệnh nhân:** Phạm Thu Hà (BN2026002)\n- **Bác sĩ:** BS.CKI Hoàng Văn Đức\n- **Chuyên khoa:** Tai Mũi Họng\n- **Bệnh viện:** Vinmec Smart City\n- **Thời gian:** 08:00, ngày 16/09/2026\n- **Mã đặt lịch:** VM-BN2026002-0800\n\nĐây là khung giờ trống sớm nhất trong ngày bạn yêu cầu. Bạn vui lòng đến trước giờ hẹn khoảng 15-20 phút để làm thủ tục. \n\nLưu ý: Với triệu chứng đau họng và ù tai kéo dài, nếu xuất hiện thêm dấu hiệu như sốt cao, chóng mặt nhiều, giảm thính lực đột ngột hoặc khó thở, bạn nên đến cấp cứu ngay thay vì chờ lịch hẹn. Chúc bạn sớm khỏe!",
+    "latency_ms": 5995.12
+  },
+  {
+    "step": 1,
+    "query": "Tra cứu lịch làm việc của bác sĩ khoa Da liễu ngày 15/09/2026 giúp tôi.",
+    "action_type": "TOOL_EXECUTION",
+    "thought": "Claude quyết định gọi công cụ: doctor_schedule_query({\"specialty\": \"Da liễu\", \"date\": \"15/09/2026\"})",
+    "tool_name": "doctor_schedule_query",
+    "arguments": {
+      "specialty": "Da liễu",
+      "date": "15/09/2026"
+    },
+    "observation": {
+      "status": "NOT_FOUND",
+      "message": "Không tìm thấy chuyên khoa 'Da liễu' trong hệ thống đặt lịch Vinmec. Các chuyên khoa hiện có: Tim Mạch, Nhi Khoa, Tai Mũi Họng."
+    },
+    "llm_latency_ms": 1817.45,
+    "tool_latency_ms": 0.03,
+    "latency_ms": 1817.48
+  },
+  {
+    "step": 2,
+    "query": "Tra cứu lịch làm việc của bác sĩ khoa Da liễu ngày 15/09/2026 giúp tôi.",
+    "action_type": "FINAL_ANSWER",
+    "thought": "Claude đã có đủ thông tin và phản hồi trực tiếp bằng văn bản.",
+    "output": "Xin lỗi anh/chị, hiện tại hệ thống đặt lịch Vinmec chưa có chuyên khoa **Da liễu**. Các chuyên khoa hiện đang hỗ trợ tra cứu và đặt lịch là:\n\n- **Tim mạch**\n- **Nhi khoa**\n- **Tai Mũi Họng**\n\nAnh/chị có muốn tôi tra cứu lịch khám ở một trong các chuyên khoa trên không, hoặc anh/chị có thể liên hệ trực tiếp tổng đài Vinmec để được hỗ trợ đặt lịch khám Da liễu.",
+    "latency_ms": 3675.4
   }
 ]

@@ -1,0 +1,1330 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinmec Healthcare ReAct Agent — Demo Dashboard</title>
+<link rel="icon" href="/assets/vinmec-logo.png">
+<style>
+:root {
+  --bg: #f3f5f9; --surface: #ffffff; --surface-2: #f7f9fc; --border: #e2e7ef; --border-strong: #cfd7e3;
+  --ink: #14233a; --ink-2: #46566e; --muted: #7a889d;
+  --brand: #1d4f91; --brand-strong: #163e73; --brand-soft: #e9f0fa; --gold: #c8962b; --gold-soft: #fbf4e4;
+  --c-llm: #1f5fae; --c-tool: #b07a00; --c-final: #00897a; --grid: #e8ecf2;
+  --ok: #1b7f47; --ok-soft: #e5f4eb; --warn: #9a5c00; --warn-soft: #fdf0d8; --bad: #b83227; --bad-soft: #fbe8e5;
+  --manual: #5f6f86; --manual-soft: #edf0f5;
+  --code-bg: #f4f6fa;
+  --shadow: 0 1px 2px rgba(16, 34, 64, .05), 0 6px 20px rgba(16, 34, 64, .06);
+  --radius: 14px;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e131b; --surface: #151c27; --surface-2: #1a2330; --border: #263244; --border-strong: #34425a;
+    --ink: #e5ebf4; --ink-2: #b1bdd0; --muted: #8190a6;
+    --brand: #5b95da; --brand-strong: #7aaae3; --brand-soft: #182a42; --gold: #d8ab4f; --gold-soft: #2c2416;
+    --c-llm: #4f8ad0; --c-tool: #b98718; --c-final: #26998b; --grid: #232e3e;
+    --ok: #4cc38a; --ok-soft: #14291e; --warn: #e3a441; --warn-soft: #2e2413; --bad: #f07b6e; --bad-soft: #321b18;
+    --manual: #9ba8ba; --manual-soft: #1e2733; --code-bg: #111821;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e131b; --surface: #151c27; --surface-2: #1a2330; --border: #263244; --border-strong: #34425a;
+  --ink: #e5ebf4; --ink-2: #b1bdd0; --muted: #8190a6;
+  --brand: #5b95da; --brand-strong: #7aaae3; --brand-soft: #182a42; --gold: #d8ab4f; --gold-soft: #2c2416;
+  --c-llm: #4f8ad0; --c-tool: #b98718; --c-final: #26998b; --grid: #232e3e;
+  --ok: #4cc38a; --ok-soft: #14291e; --warn: #e3a441; --warn-soft: #2e2413; --bad: #f07b6e; --bad-soft: #321b18;
+  --manual: #9ba8ba; --manual-soft: #1e2733; --code-bg: #111821;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: var(--brand); }
+code, pre { font-family: var(--mono); font-size: 12.5px; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; letter-spacing: -.01em; }
+button, input, select, textarea { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+/* ---------- Top bar ---------- */
+.accent-line { height: 3px; background: linear-gradient(90deg, var(--brand) 0%, var(--brand) 55%, var(--gold) 100%); }
+.topbar { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.topbar-inner { max-width: 1320px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 16px; }
+.logo-chip { width: 48px; height: 48px; border-radius: 12px; background: #fff; display: grid; place-items: center; overflow: hidden; box-shadow: 0 0 0 1px var(--border); flex: none; }
+.logo-chip img { width: 56px; height: 56px; object-fit: contain; }
+.brand-text { min-width: 0; }
+.brand-text .eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+.brand-text h1 { font-size: 17px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); font-size: 12.5px; color: var(--ink-2); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.ok { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.dot.warn { background: var(--warn); box-shadow: 0 0 0 3px var(--warn-soft); }
+.icon-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: grid; place-items: center; color: var(--ink-2); }
+.icon-btn:hover { border-color: var(--border-strong); color: var(--ink); }
+
+.tabs { max-width: 1320px; margin: 0 auto; padding: 0 20px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { border: 0; background: none; padding: 10px 14px 12px; cursor: pointer; color: var(--ink-2); font-weight: 600; font-size: 13.5px; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--brand); border-bottom-color: var(--brand); }
+.tab .num { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); font-size: 11px; margin-right: 6px; color: var(--muted); }
+.tab[aria-selected="true"] .num { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+main { max-width: 1320px; margin: 0 auto; padding: 22px 20px 60px; }
+.panel { display: none; }
+.panel.active { display: block; animation: fade .25s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Generic ---------- */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card-pad { padding: 20px; }
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 28px 0 12px; flex-wrap: wrap; }
+.section-head:first-child { margin-top: 0; }
+.section-head h2 { font-size: 18px; }
+.section-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 13.5px; }
+.kicker { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.grid { display: grid; gap: 16px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--ink); white-space: nowrap; }
+.btn:hover { border-color: var(--border-strong); }
+.btn-primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn-primary:hover { background: var(--brand-strong); border-color: var(--brand-strong); }
+.btn-primary:disabled { opacity: .6; cursor: progress; }
+.btn-sm { padding: 6px 11px; font-size: 12.5px; border-radius: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-2); white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.badge.warn { background: var(--warn-soft); color: var(--warn); }
+.badge.bad { background: var(--bad-soft); color: var(--bad); }
+.badge.manual { background: var(--manual-soft); color: var(--manual); }
+.badge.brand { background: var(--brand-soft); color: var(--brand); }
+.inline-code { font-family: var(--mono); font-size: 12px; background: var(--code-bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 6px; }
+pre.code { margin: 0; background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; overflow-x: auto; line-height: 1.5; color: var(--ink); }
+.j-key { color: var(--brand); } .j-str { color: var(--c-final); } .j-num { color: var(--c-tool); } .j-lit { color: var(--bad); }
+.table-wrap { overflow-x: auto; }
+table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--surface-2); white-space: nowrap; }
+table.data td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink); }
+table.data tr:last-child td { border-bottom: 0; }
+.callout { display: flex; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); font-size: 13.5px; }
+.callout.warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+.callout.bad { background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 30%, transparent); }
+.callout.ok { background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
+.callout .ci { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 12px; color: #fff; }
+.callout.warn .ci { background: var(--warn); } .callout.bad .ci { background: var(--bad); } .callout.ok .ci { background: var(--ok); }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; overflow: hidden; border-radius: 18px; padding: 26px 28px; color: #fff;
+  background: radial-gradient(1200px 400px at 110% -40%, rgba(216, 171, 79, .35), transparent 60%), linear-gradient(135deg, #163e73 0%, #1d4f91 55%, #2a63a8 100%); box-shadow: var(--shadow); }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: center; }
+.hero .eyebrow { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: #f3d38e; font-weight: 700; }
+.hero h2 { font-size: 26px; margin: 6px 0 10px; font-weight: 750; }
+.hero p { margin: 0; color: rgba(255, 255, 255, .85); max-width: 640px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.hero-meta span { background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .18); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.kpi { background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .18); border-radius: 14px; padding: 12px 14px; }
+.kpi .v { font-size: 26px; font-weight: 750; line-height: 1.1; }
+.kpi .v small { font-size: 14px; font-weight: 600; opacity: .75; }
+.kpi .l { font-size: 12px; color: rgba(255, 255, 255, .8); margin-top: 2px; }
+
+/* ---------- Requirements ---------- */
+.req-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.req-card { padding: 18px 18px 8px; }
+.req-head { display: flex; align-items: center; gap: 10px; }
+.req-head h3 { font-size: 15px; }
+.weight { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--brand); background: var(--brand-soft); padding: 3px 9px; border-radius: 8px; white-space: nowrap; }
+.progress { height: 6px; background: var(--grid); border-radius: 99px; overflow: hidden; margin: 12px 0 6px; display: flex; gap: 2px; }
+.progress span { display: block; height: 100%; }
+.progress .p-ok { background: var(--ok); } .progress .p-warn { background: var(--warn); } .progress .p-bad { background: var(--bad); } .progress .p-manual { background: var(--manual); opacity: .5; }
+.req-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.req-list li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; padding: 10px 0; border-top: 1px solid var(--border); }
+.req-list li:first-child { border-top: 0; }
+.st { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; font-size: 12px; font-weight: 800; }
+.st.pass { background: var(--ok-soft); color: var(--ok); } .st.warn { background: var(--warn-soft); color: var(--warn); }
+.st.fail { background: var(--bad-soft); color: var(--bad); } .st.manual { background: var(--manual-soft); color: var(--manual); }
+.req-label { font-weight: 600; font-size: 13.5px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.req-label .badge { font-size: 10.5px; }
+.req-detail { color: var(--ink-2); font-size: 12.5px; margin-top: 2px; word-break: break-word; }
+.req-evidence { color: var(--muted); font-size: 11.5px; font-family: var(--mono); margin-top: 2px; word-break: break-all; }
+
+/* ---------- Fit bars ---------- */
+.fit-row { display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) 54px; gap: 14px; align-items: center; padding: 10px 0; border-top: 1px solid var(--border); }
+.fit-row:first-child { border-top: 0; }
+.fit-name { font-weight: 600; font-size: 13.5px; }
+.fit-track { position: relative; height: 12px; background: var(--grid); border-radius: 4px; }
+.fit-fill { position: absolute; inset: 0 auto 0 0; background: var(--c-llm); border-radius: 0 4px 4px 0; transition: width .8s cubic-bezier(.2, .8, .2, 1); }
+.fit-val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.fit-note { grid-column: 1 / -1; color: var(--ink-2); font-size: 12.5px; margin-top: -4px; }
+.fit-total { display: flex; align-items: center; gap: 16px; margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--border-strong); flex-wrap: wrap; }
+.fit-total .big { font-size: 30px; font-weight: 750; }
+.fit-total .track20 { position: relative; flex: 1; min-width: 200px; height: 14px; background: var(--grid); border-radius: 4px; }
+.fit-total .threshold { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--ink-2); }
+.fit-total .threshold::after { content: attr(data-label); position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--ink-2); white-space: nowrap; }
+
+/* ---------- Architecture ---------- */
+.arch-wrap { overflow-x: auto; }
+.arch-svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.arch-svg .box { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.2; }
+.arch-svg .box-agent { fill: var(--brand-soft); stroke: var(--brand); stroke-width: 1.6; }
+.arch-svg .box-llm { fill: var(--surface); stroke: var(--c-llm); stroke-width: 1.4; }
+.arch-svg .box-mcp { fill: var(--surface); stroke: var(--c-tool); stroke-width: 1.4; }
+.arch-svg .box-final { fill: var(--surface); stroke: var(--c-final); stroke-width: 1.4; }
+.arch-svg .t-title { fill: var(--ink); font-weight: 700; font-size: 14px; }
+.arch-svg .t-sub { fill: var(--ink-2); font-size: 12px; }
+.arch-svg .t-mono { fill: var(--muted); font-size: 11px; font-family: var(--mono); }
+.arch-svg .t-arrow { fill: var(--ink-2); font-size: 11.5px; font-weight: 600; }
+.arch-svg .edge { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
+.arch-svg .edge-loop { stroke: var(--brand); stroke-width: 2; fill: none; stroke-dasharray: 5 5; animation: dash 1.2s linear infinite; }
+.arch-svg .arrowhead { fill: var(--ink-2); }
+.arch-svg .arrowhead-brand { fill: var(--brand); }
+.arch-svg .tag { fill: var(--brand); }
+.arch-svg .tag-text { fill: #fff; font-size: 11px; font-weight: 700; }
+@keyframes dash { to { stroke-dashoffset: -20; } }
+
+.loop-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.loop-step { position: relative; padding: 16px; }
+.loop-step .n { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-weight: 800; color: #fff; margin-bottom: 10px; }
+.loop-step h4 { font-size: 14px; margin-bottom: 4px; }
+.loop-step p { margin: 0; color: var(--ink-2); font-size: 12.5px; }
+.loop-step .file { margin-top: 8px; }
+
+.two-col { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+/* ---------- Demo ---------- */
+.demo-layout { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 16px; align-items: start; }
+.sidebar { position: sticky; top: 118px; display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field label, .field .lbl { font-size: 12px; font-weight: 700; color: var(--ink-2); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.field .hint { font-size: 11.5px; color: var(--muted); }
+select, textarea, input[type="text"] { width: 100%; border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 8px 10px; outline: none; }
+select:focus, textarea:focus, input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+textarea { resize: vertical; }
+input[type="range"] { width: 100%; accent-color: var(--brand); }
+.range-val { font-family: var(--mono); font-weight: 700; color: var(--brand); background: var(--brand-soft); padding: 0 8px; border-radius: 6px; }
+.toggle { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13px; padding: 6px 0; }
+.toggle input { margin-top: 3px; accent-color: var(--brand); }
+.toggle small { display: block; color: var(--muted); font-size: 11.5px; }
+.seg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+
+.cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.case { text-align: left; padding: 12px 13px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: grid; gap: 6px; transition: border-color .15s, box-shadow .15s, transform .15s; }
+.case:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.case.selected { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.case .case-top { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.case .case-title { font-weight: 650; font-size: 13px; }
+.case .case-q { color: var(--ink-2); font-size: 12px; line-height: 1.5; max-height: 3em; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; align-self: start; }
+.group-label { font-size: 12px; font-weight: 700; color: var(--muted); margin: 14px 0 8px; text-transform: uppercase; letter-spacing: .06em; }
+.group-label:first-child { margin-top: 0; }
+
+.query-box { display: grid; gap: 10px; }
+.query-actions { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.expected { font-size: 12.5px; color: var(--ink-2); background: var(--surface-2); border: 1px dashed var(--border-strong); border-radius: 10px; padding: 8px 12px; }
+.expected b { color: var(--ink); }
+
+.run-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.run-bar .stat { display: inline-flex; gap: 6px; align-items: baseline; padding: 4px 10px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); font-size: 12.5px; color: var(--ink-2); }
+.run-bar .stat b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--brand-soft); border-top-color: var(--brand); animation: spin .8s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.timeline { padding: 8px 16px 16px; }
+.empty { text-align: center; color: var(--muted); padding: 40px 16px; }
+.empty .big { font-size: 15px; font-weight: 650; color: var(--ink-2); margin-bottom: 4px; }
+.step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding-top: 14px; animation: fade .3s ease; }
+.step-rail { position: relative; display: flex; justify-content: center; }
+.step-rail::after { content: ""; position: absolute; top: 34px; bottom: -14px; width: 2px; background: var(--border); }
+.step:last-child .step-rail::after { display: none; }
+.step-dot { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 13px; background: var(--brand-soft); color: var(--brand); border: 1px solid color-mix(in srgb, var(--brand) 35%, transparent); position: relative; z-index: 1; }
+.step.final .step-dot { background: color-mix(in srgb, var(--c-final) 14%, var(--surface)); color: var(--c-final); border-color: color-mix(in srgb, var(--c-final) 40%, transparent); }
+.step.limit .step-dot { background: var(--warn-soft); color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+.step-body { min-width: 0; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.step-head { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.step-head .title { font-weight: 700; font-size: 13px; }
+.step-head .ms { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.phase { padding: 10px 12px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px; }
+.phase:first-of-type { border-top: 0; }
+.phase-label { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; display: flex; align-items: flex-start; gap: 6px; padding-top: 2px; }
+.phase-label i { width: 8px; height: 8px; border-radius: 2px; margin-top: 4px; flex: none; }
+.ph-thought .phase-label { color: var(--c-llm); } .ph-thought i { background: var(--c-llm); }
+.ph-action .phase-label { color: var(--c-tool); } .ph-action i { background: var(--c-tool); }
+.ph-obs .phase-label { color: var(--ink-2); } .ph-obs i { background: var(--ink-2); }
+.ph-final .phase-label { color: var(--c-final); } .ph-final i { background: var(--c-final); }
+.phase-text { font-size: 13px; color: var(--ink); min-width: 0; word-break: break-word; }
+.phase-text .thinking { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); }
+.call { font-family: var(--mono); font-size: 12.5px; background: var(--code-bg); border: 1px solid var(--border); padding: 6px 9px; border-radius: 8px; display: block; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+details.rpc { margin-top: 8px; }
+details.rpc summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--brand); list-style: none; }
+details.rpc summary::-webkit-details-marker { display: none; }
+details.rpc summary::before { content: "▸ "; }
+details.rpc[open] summary::before { content: "▾ "; }
+details.rpc pre { margin-top: 8px; max-height: 320px; }
+.md p { margin: 0 0 8px; } .md p:last-child { margin-bottom: 0; }
+.md ul { margin: 0 0 8px; padding-left: 20px; } .md li { margin: 2px 0; }
+.md h4 { font-size: 14px; margin: 8px 0 4px; }
+.md hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
+.md code { font-family: var(--mono); font-size: 12px; background: var(--code-bg); padding: 0 4px; border-radius: 4px; }
+.md-table { overflow-x: auto; margin: 6px 0 10px; }
+.md-table table { border-collapse: collapse; font-size: 12.5px; }
+.md-table th, .md-table td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; }
+.md-table th { background: var(--surface-2); }
+
+.result-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 16px; }
+.compare-col { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.compare-col h4 { font-size: 13px; padding: 9px 12px; background: var(--surface-2); border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.compare-col .body { padding: 12px; font-size: 13px; max-height: 420px; overflow: auto; }
+.log-list { display: grid; gap: 8px; padding: 12px 16px 0; }
+
+/* ---------- Schedules ---------- */
+.sched-spec { padding: 10px 0; border-top: 1px solid var(--border); }
+.sched-spec:first-child { border-top: 0; padding-top: 0; }
+.sched-spec h5 { margin: 0 0 6px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+.sched-doc { font-size: 12.5px; margin: 6px 0 4px; font-weight: 600; }
+.sched-doc span { color: var(--muted); font-weight: 400; }
+.slots { display: flex; flex-wrap: wrap; gap: 5px; }
+.slot { font-family: var(--mono); font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--ok-soft); color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 25%, transparent); }
+.slot.booked { background: var(--manual-soft); color: var(--muted); text-decoration: line-through; border-color: var(--border); }
+
+/* ---------- Waterfall chart ---------- */
+.wf { position: relative; }
+.wf-legend { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; font-size: 12.5px; color: var(--ink-2); margin-bottom: 8px; }
+.wf-legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
+.wf svg { display: block; width: 100%; height: auto; overflow: visible; }
+.wf .axis-text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.wf .row-label { fill: var(--ink-2); font-size: 12px; }
+.wf .val-label { fill: var(--ink-2); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.wf .gridline { stroke: var(--grid); stroke-width: 1; }
+.wf .baseline { stroke: var(--border-strong); stroke-width: 1; }
+.wf .bar-llm { fill: var(--c-llm); } .wf .bar-tool { fill: var(--c-tool); } .wf .bar-final { fill: var(--c-final); }
+.wf .hit { fill: transparent; cursor: default; }
+.wf .hit:hover { fill: color-mix(in srgb, var(--brand) 6%, transparent); }
+.wf-tip { position: absolute; pointer-events: none; z-index: 5; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); border-radius: 10px; padding: 8px 10px; font-size: 12px; min-width: 190px; max-width: 280px; }
+.wf-tip .tt { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.wf-tip .tr { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-2); }
+.wf-tip .tr b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.wf-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+
+/* ---------- Evidence ---------- */
+.ev-group { margin-bottom: 16px; }
+.ev-head { padding: 16px 18px; border-bottom: 1px solid var(--border); display: grid; gap: 8px; }
+.ev-head .q { font-weight: 650; font-size: 14px; }
+.ev-head .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.ev-body { padding: 16px 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+details.steps summary { cursor: pointer; font-weight: 600; font-size: 13px; color: var(--brand); }
+
+/* ---------- Tools ---------- */
+.tool-card h3 { font-family: var(--mono); font-size: 15px; }
+.tool-card .desc { color: var(--ink-2); margin: 6px 0 12px; font-size: 13px; }
+
+footer { max-width: 1320px; margin: 0 auto; padding: 0 20px 30px; color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 1080px) {
+  .demo-layout { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { position: static; }
+  .loop-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .hero-grid, .req-grid, .two-col, .compare { grid-template-columns: minmax(0, 1fr); }
+  .status-pill .long { display: none; }
+}
+@media (max-width: 560px) {
+  .topbar-inner, .tabs, main, footer { padding-left: 16px; padding-right: 16px; }
+  .brand-text h1 { font-size: 14px; }
+  .brand-text .eyebrow { display: none; }
+  .topbar-right .status-pill { display: none; }
+  .hero { padding: 20px; }
+  .hero h2 { font-size: 21px; }
+  .loop-steps { grid-template-columns: minmax(0, 1fr); }
+  .phase { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .fit-row { grid-template-columns: minmax(0, 1fr) 48px; }
+  .fit-track { grid-column: 1 / -1; grid-row: 2; }
+}
+</style>
+</head>
+<body>
+<div class="accent-line"></div>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo-chip"><img src="/assets/vinmec-logo.png" alt="Logo Vinmec"></div>
+    <div class="brand-text">
+      <div class="eyebrow">Day 03 Lab · Chatbot vs ReAct Agent (MCP)</div>
+      <h1>Vinmec Healthcare ReAct Agent</h1>
+    </div>
+    <div class="topbar-right">
+      <span class="status-pill" id="providerPill"><span class="dot"></span><span>Đang tải…</span></span>
+      <button class="icon-btn" id="themeBtn" title="Đổi giao diện sáng / tối" aria-label="Đổi giao diện sáng / tối">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true"><span class="num">1</span>Tổng quan &amp; Yêu cầu</button>
+    <button class="tab" role="tab" data-tab="architecture" aria-selected="false"><span class="num">2</span>Kiến trúc &amp; Luồng Agent</button>
+    <button class="tab" role="tab" data-tab="demo" aria-selected="false"><span class="num">3</span>Demo trực tiếp</button>
+    <button class="tab" role="tab" data-tab="evidence" aria-selected="false"><span class="num">4</span>Trace nghiệm thu</button>
+    <button class="tab" role="tab" data-tab="tools" aria-selected="false"><span class="num">5</span>Tools &amp; Test Cases</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ======================= 1. OVERVIEW ======================= -->
+  <section class="panel active" id="panel-overview">
+    <div class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Trợ lý Tư vấn Sức khỏe · ReAct Agent + Model Context Protocol</div>
+          <h2>Tra cứu lịch bác sĩ &amp; đặt lịch khám bằng Agent tự suy luận</h2>
+          <p>Agent nhận câu hỏi tự nhiên của bệnh nhân, tự quyết định gọi công cụ qua MCP Server (JSON-RPC 2.0), đọc Observation, lặp lại khi cần và chỉ trả lời dựa trên dữ liệu thật — không bịa đặt.</p>
+          <div class="hero-meta" id="heroMeta"></div>
+        </div>
+        <div class="kpis" id="heroKpis"></div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <div class="kicker">Rubric 100% · kiểm tra tự động trên repo</div>
+        <h2>Checklist yêu cầu đề bài</h2>
+        <p>Mỗi mục đối chiếu trực tiếp với file trong dự án. <span class="badge manual">Tự xác nhận</span> là mục không kiểm tra tự động được.</p>
+      </div>
+      <button class="btn btn-sm" id="recheckBtn">↻ Kiểm tra lại</button>
+    </div>
+    <div id="remaining"></div>
+    <div class="grid req-grid" id="reqGrid"></div>
+
+    <div class="section-head">
+      <div>
+        <div class="kicker">Task 1.1 · docs/trace_eval.md</div>
+        <h2>Agentic Fit Scoring Matrix</h2>
+        <p>Đánh giá 4 tiêu chí để quyết định dùng Agent thay vì Chatbot thường.</p>
+      </div>
+    </div>
+    <div class="card card-pad" id="fitCard"></div>
+  </section>
+
+  <!-- ======================= 2. ARCHITECTURE ======================= -->
+  <section class="panel" id="panel-architecture">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Kiến trúc Client – Server</div>
+        <h2>Luồng dữ liệu của hệ thống Agentic</h2>
+        <p>Agent Core đóng vai trò MCP Client: điều phối LLM và MCP Server trong vòng lặp ReAct, ghi Waterfall Trace cho mọi bước.</p>
+      </div>
+    </div>
+    <div class="card card-pad arch-wrap">
+      <svg class="arch-svg" viewBox="0 0 1160 610" role="img" aria-label="Sơ đồ kiến trúc: Người dùng, Agent Core, LLM Provider, MCP Server, Tools, Mock DB và Trace">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead" d="M0,0 L10,5 L0,10 z"/></marker>
+          <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrowhead-brand" d="M0,0 L10,5 L0,10 z"/></marker>
+        </defs>
+
+        <!-- User -->
+        <rect class="box" x="20" y="200" width="190" height="110" rx="14"/>
+        <text class="t-title" x="115" y="240" text-anchor="middle">Người dùng</text>
+        <text class="t-sub" x="115" y="262" text-anchor="middle">Bệnh nhân / Khách hàng</text>
+        <text class="t-mono" x="115" y="284" text-anchor="middle">câu hỏi tự nhiên</text>
+
+        <!-- Agent core -->
+        <rect class="box-agent" x="320" y="150" width="270" height="210" rx="16"/>
+        <text class="t-title" x="455" y="186" text-anchor="middle">Agent Core · MCP Client</text>
+        <text class="t-mono" x="455" y="206" text-anchor="middle">src/app.py · run_react_agent()</text>
+        <text class="t-sub" x="345" y="240">• Gửi prompt + tools + history</text>
+        <text class="t-sub" x="345" y="262">• Thực thi tool_call qua MCP</text>
+        <text class="t-sub" x="345" y="284">• Nạp Observation vào history</text>
+        <text class="t-sub" x="345" y="306">• Dừng: Final Answer / MAX_ITERATIONS</text>
+        <rect class="tag" x="395" y="322" width="120" height="24" rx="12"/>
+        <text class="tag-text" x="455" y="338" text-anchor="middle">↻ ReAct Loop</text>
+
+        <!-- LLM -->
+        <rect class="box-llm" x="720" y="40" width="300" height="120" rx="14"/>
+        <text class="t-title" x="870" y="76" text-anchor="middle">LLM Provider</text>
+        <text class="t-mono" x="870" y="96" text-anchor="middle">src/providers.py</text>
+        <text class="t-sub" x="870" y="120" text-anchor="middle">Claude · Gemini · OpenAI · Mock</text>
+        <text class="t-sub" x="870" y="142" text-anchor="middle">Native Tool Calling</text>
+
+        <!-- MCP -->
+        <rect class="box-mcp" x="720" y="230" width="300" height="120" rx="14"/>
+        <text class="t-title" x="870" y="266" text-anchor="middle">MCP Server</text>
+        <text class="t-mono" x="870" y="286" text-anchor="middle">src/mcp_server.py · vinmec-healthcare</text>
+        <text class="t-sub" x="870" y="310" text-anchor="middle">JSON-RPC 2.0 · list_tools / call_tool</text>
+        <text class="t-sub" x="870" y="332" text-anchor="middle">dispatch_tool_call() → Tool Router</text>
+
+        <!-- Tools -->
+        <rect class="box" x="720" y="410" width="145" height="90" rx="12"/>
+        <text class="t-title" x="792" y="444" text-anchor="middle" style="font-size:12.5px">doctor_schedule</text>
+        <text class="t-title" x="792" y="461" text-anchor="middle" style="font-size:12.5px">_query</text>
+        <text class="t-sub" x="792" y="484" text-anchor="middle">Tra cứu (Read)</text>
+        <rect class="box" x="875" y="410" width="145" height="90" rx="12"/>
+        <text class="t-title" x="947" y="444" text-anchor="middle" style="font-size:12.5px">schedule</text>
+        <text class="t-title" x="947" y="461" text-anchor="middle" style="font-size:12.5px">_appointment</text>
+        <text class="t-sub" x="947" y="484" text-anchor="middle">Hành động (Write)</text>
+
+        <!-- DB -->
+        <rect class="box" x="720" y="545" width="300" height="56" rx="12"/>
+        <text class="t-title" x="870" y="568" text-anchor="middle" style="font-size:12.5px">Mock DB</text>
+        <text class="t-mono" x="870" y="588" text-anchor="middle">MOCK_DOCTOR_SCHEDULES · MOCK_PATIENTS</text>
+
+        <!-- Trace -->
+        <rect class="box-final" x="320" y="440" width="270" height="80" rx="14"/>
+        <text class="t-title" x="455" y="474" text-anchor="middle">Waterfall Trace Log</text>
+        <text class="t-mono" x="455" y="496" text-anchor="middle">docs/trace_waterfall.json</text>
+
+        <!-- Edges -->
+        <path class="edge" d="M210,235 L318,235" marker-end="url(#ah)"/>
+        <text class="t-arrow" x="264" y="226" text-anchor="middle">① Query</text>
+        <path class="edge" d="M320,285 L212,285" marker-end="url(#ah)"/>
+        <text class="t-arrow" x="264" y="304" text-anchor="middle">⑥ Final Answer</text>
+
+        <path class="edge" d="M590,190 L718,95" marker-end="url(#ah)"/>
+        <text class="t-arrow" x="600" y="112" text-anchor="middle">② prompt + tools</text>
+        <text class="t-arrow" x="600" y="127" text-anchor="middle">+ history</text>
+        <path class="edge-loop" d="M720,135 L592,225" marker-end="url(#ahb)"/>
+        <text class="t-arrow" x="705" y="212" text-anchor="middle">③ Thought +</text>
+        <text class="t-arrow" x="705" y="227" text-anchor="middle">tool_call / text</text>
+
+        <path class="edge" d="M590,265 L718,265" marker-end="url(#ah)"/>
+        <text class="t-arrow" x="654" y="257" text-anchor="middle">④ tools/call</text>
+        <path class="edge-loop" d="M720,320 L592,320" marker-end="url(#ahb)"/>
+        <text class="t-arrow" x="654" y="340" text-anchor="middle">⑤ Observation</text>
+
+        <path class="edge" d="M792,350 L792,408" marker-end="url(#ah)"/>
+        <path class="edge" d="M947,350 L947,408" marker-end="url(#ah)"/>
+        <path class="edge" d="M792,500 L792,543" marker-end="url(#ah)"/>
+        <path class="edge" d="M947,500 L947,543" marker-end="url(#ah)"/>
+        <path class="edge" d="M455,360 L455,438" marker-end="url(#ah)"/>
+        <text class="t-arrow" x="465" y="404">ghi mỗi bước + latency_ms</text>
+      </svg>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <div class="kicker">Thought → Action → Observation</div>
+        <h2>Một vòng lặp ReAct diễn ra thế nào</h2>
+        <p>Vòng lặp lặp lại bước 2–4 cho đến khi LLM đủ dữ liệu để trả lời, hoặc chạm giới hạn <span class="inline-code">MAX_ITERATIONS</span>.</p>
+      </div>
+    </div>
+    <div class="loop-steps">
+      <div class="card loop-step"><div class="n" style="background:var(--ink-2)">1</div><h4>Nhận câu hỏi</h4><p>Câu hỏi + System Prompt (7 quy tắc) + danh sách Tool Schema công bố từ MCP Server.</p><div class="file"><span class="inline-code">list_tools()</span></div></div>
+      <div class="card loop-step"><div class="n" style="background:var(--c-llm)">2</div><h4>Thought</h4><p>LLM suy luận trên toàn bộ history: cần dữ liệu gì, gọi tool nào, hay đã đủ để trả lời?</p><div class="file"><span class="inline-code">generate_with_tools()</span></div></div>
+      <div class="card loop-step"><div class="n" style="background:var(--c-tool)">3</div><h4>Action</h4><p>LLM trả <b>tool_call</b> với tham số trích từ câu hỏi — có thể nhiều tool trong 1 lượt.</p><div class="file"><span class="inline-code">call_tool(name, args)</span></div></div>
+      <div class="card loop-step"><div class="n" style="background:var(--ink-2)">4</div><h4>Observation</h4><p>MCP Server trả JSON-RPC 2.0; kết quả được nạp vào history cho lượt suy luận kế tiếp.</p><div class="file"><span class="inline-code">history.append(...)</span></div></div>
+      <div class="card loop-step"><div class="n" style="background:var(--c-final)">5</div><h4>Final Answer</h4><p>LLM trả văn bản khi đã đủ dữ liệu → dừng vòng lặp, ghi trace và phản hồi người dùng.</p><div class="file"><span class="inline-code">FINAL_ANSWER</span></div></div>
+    </div>
+
+    <div class="grid two-col" style="margin-top:16px">
+      <div class="card card-pad">
+        <div class="kicker" style="margin-bottom:8px">Lõi vòng lặp · src/app.py</div>
+<pre class="code">while step &lt; max_iterations:
+    step += 1
+    llm = provider.generate_with_tools(query, tools,
+              system_prompt, history=history)   <span class="j-key"># Thought</span>
+    if llm["type"] != "tool_call":
+        record(FINAL_ANSWER); break             <span class="j-key"># Final Answer</span>
+    for call in llm["tool_calls"]:              <span class="j-key"># Action</span>
+        obs = mcp_server.call_tool(call["name"],
+                                   call["arguments"])["result"]
+        record(TOOL_EXECUTION)                  <span class="j-key"># Observation</span>
+    history.append({..., "tool_calls": executed})
+else:
+    record(FINAL_ANSWER: "Đã đạt giới hạn ...")</pre>
+      </div>
+      <div class="card card-pad">
+        <div class="kicker" style="margin-bottom:8px">Dynamic Decision · Agent phản ứng theo Observation</div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>status từ Tool</th><th>Agent quyết định</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge ok">SUCCESS</span></td><td>Dùng dữ liệu thật để trả lời, hoặc gọi tiếp tool (vd. tra cứu xong → đặt lịch).</td></tr>
+              <tr><td><span class="badge warn">SLOT_UNAVAILABLE</span></td><td>Không đặt được giờ đó → đề xuất khung giờ còn trống từ <span class="inline-code">available_slots</span>.</td></tr>
+              <tr><td><span class="badge warn">NO_AVAILABLE_SLOT</span></td><td>Hết lịch trong ngày → gợi ý chọn ngày khác.</td></tr>
+              <tr><td><span class="badge warn">NOT_FOUND</span></td><td>Sai mã bệnh nhân / chuyên khoa → phản hồi lịch sự, không bịa dữ liệu.</td></tr>
+              <tr><td><span class="badge bad">EXECUTION_ERROR</span></td><td>Tham số sai kiểu → báo lỗi, có thể thử lại với tham số đúng.</td></tr>
+              <tr><td><span class="badge bad">UNKNOWN_TOOL</span></td><td>Tool không tồn tại → không thực thi, tiếp tục suy luận.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <div class="kicker">Có thể điều chỉnh</div>
+        <h2>Thông số vận hành Agent</h2>
+        <p>Các tham số in đậm chỉnh trực tiếp được ở tab <b>Demo trực tiếp</b> mà không cần sửa code.</p>
+      </div>
+    </div>
+    <div class="card"><div class="table-wrap"><table class="data" id="paramTable"></table></div></div>
+
+    <div class="section-head">
+      <div>
+        <div class="kicker">4 cấp độ AI System · Slide Day 3</div>
+        <h2>Chatbot (Cấp 2) và ReAct Agent (Cấp 3)</h2>
+      </div>
+    </div>
+    <div class="card"><div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Tiêu chí</th><th>Cấp 2 · LLM Chatbot</th><th>Cấp 3 · ReAct Agent (MCP)</th></tr></thead>
+        <tbody>
+          <tr><td>Dữ liệu thời gian thực</td><td>Không — chỉ kiến thức huấn luyện</td><td>Có — tra cứu lịch bác sĩ qua MCP Server</td></tr>
+          <tr><td>Hành động</td><td>Không thể đặt lịch</td><td>Gọi <span class="inline-code">schedule_appointment</span>, trả mã đặt lịch thật</td></tr>
+          <tr><td>Suy luận đa bước</td><td>1 lượt hỏi – đáp</td><td>Lặp Thought → Action → Observation đến khi đủ dữ liệu</td></tr>
+          <tr><td>Chống ảo giác</td><td>Dễ bịa tên bác sĩ, khung giờ</td><td>Chỉ trả lời dựa trên Observation</td></tr>
+          <tr><td>Quan sát hệ thống</td><td>Không có vết</td><td>Waterfall Trace: thought, arguments, observation, latency</td></tr>
+          <tr><td>Chi phí / độ trễ</td><td>Thấp (1 lần gọi LLM)</td><td>Cao hơn (N lần gọi LLM) — đổi lại độ chính xác</td></tr>
+        </tbody>
+      </table>
+    </div></div>
+  </section>
+
+  <!-- ======================= 3. DEMO ======================= -->
+  <section class="panel" id="panel-demo">
+    <div class="demo-layout">
+      <aside class="sidebar">
+        <div class="card card-pad">
+          <div class="kicker" style="margin-bottom:12px">Cấu hình Agent</div>
+          <div class="field">
+            <label for="providerSel">LLM Provider</label>
+            <select id="providerSel"></select>
+            <div class="hint" id="providerNote"></div>
+          </div>
+          <div class="field">
+            <label for="modelSel">Model <span class="hint" id="priceHint"></span></label>
+            <select id="modelSel"></select>
+          </div>
+          <div class="field">
+            <label for="iterRange">MAX_ITERATIONS <span class="range-val" id="iterVal">5</span></label>
+            <input type="range" id="iterRange" min="1" max="10" step="1" value="5">
+            <div class="hint">Đặt = 1 để thấy Agent bị cắt giữa chừng ở case đa bước.</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="compareChk"><span>So sánh với Chatbot Baseline<small>Chạy thêm 1 lần LLM không có tool (Cấp 2).</small></span></label>
+          <label class="toggle"><input type="checkbox" id="resetChk" checked><span>Reset lịch trống trước khi chạy<small>Để kết quả đặt lịch lặp lại được.</small></span></label>
+          <details style="margin-top:10px">
+            <summary style="cursor:pointer;font-weight:600;font-size:13px;color:var(--brand)">System prompt (chỉnh được)</summary>
+            <div class="field" style="margin-top:10px">
+              <textarea id="promptBox" rows="10" style="font-family:var(--mono);font-size:11.5px"></textarea>
+              <button class="btn btn-sm" id="promptReset" type="button">Khôi phục mặc định</button>
+            </div>
+          </details>
+        </div>
+        <div class="card card-pad">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="kicker">Mock DB · Lịch trống live</div>
+            <button class="btn btn-sm" id="resetDbBtn" type="button">Reset</button>
+          </div>
+          <div id="schedules" class="muted">Đang tải…</div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="card card-pad">
+          <div class="section-head" style="margin-top:0">
+            <div>
+              <div class="kicker">Chọn kịch bản</div>
+              <h2>Kịch bản demo</h2>
+              <p>5 test case nghiệm thu và 6 tình huống mở rộng thể hiện quyết định động, tình huống biên và an toàn.</p>
+            </div>
+          </div>
+          <div id="caseList"></div>
+        </div>
+
+        <div class="card card-pad" style="margin-top:16px">
+          <div class="query-box">
+            <label for="queryBox" class="kicker">Câu hỏi gửi Agent</label>
+            <textarea id="queryBox" rows="3" placeholder="Ví dụ: Tìm bác sĩ Tai Mũi Họng trống sớm nhất ngày 16/09/2026 và đặt lịch cho BN2026002"></textarea>
+            <div class="expected" id="expectedBox" hidden></div>
+            <div class="query-actions">
+              <span class="muted" id="runHint">Ctrl + Enter để chạy</span>
+              <button class="btn btn-primary" id="runBtn" type="button">▶ Chạy Agent</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-grid">
+          <div class="card" id="runCard">
+            <div class="run-bar" id="runBar"><span class="muted">Chưa chạy — chọn kịch bản rồi bấm “Chạy Agent”.</span></div>
+            <div class="log-list" id="runLogs"></div>
+            <div class="timeline" id="timeline">
+              <div class="empty"><div class="big">Luồng thực thi ReAct sẽ hiện ở đây theo thời gian thực</div>Mỗi bước gồm Thought → Action → Observation (kèm JSON-RPC) → Final Answer.</div>
+            </div>
+          </div>
+          <div class="card card-pad" id="runChartCard" hidden>
+            <div class="kicker" style="margin-bottom:4px">Waterfall latency của lần chạy</div>
+            <h3 style="font-size:15px;margin-bottom:10px">Thời gian từng bước: LLM suy luận so với thực thi Tool</h3>
+            <div id="runChart"></div>
+          </div>
+          <div class="card" id="compareCard" hidden>
+            <div class="compare">
+              <div class="compare-col"><h4>Cấp 2 · Chatbot Baseline <span class="chip" id="cbMs"></span></h4><div class="body md" id="cbOut"></div></div>
+              <div class="compare-col"><h4>Cấp 3 · ReAct Agent <span class="chip" id="agMs"></span></h4><div class="body md" id="agOut"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 4. EVIDENCE ======================= -->
+  <section class="panel" id="panel-evidence">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Tiêu chí 3 · docs/trace_waterfall.json</div>
+        <h2>Waterfall Trace nghiệm thu</h2>
+        <p>Log do lệnh <span class="inline-code">python src/app.py --all</span> sinh ra — bằng chứng nộp bài.</p>
+      </div>
+      <button class="btn btn-sm" id="reloadTrace">↻ Tải lại trace</button>
+    </div>
+    <div id="traceSummary"></div>
+    <div id="traceGroups"></div>
+  </section>
+
+  <!-- ======================= 5. TOOLS ======================= -->
+  <section class="panel" id="panel-tools">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Task 1.2 · src/tools.py</div>
+        <h2>Tool Schemas công bố qua MCP</h2>
+        <p>JSON Schema mà LLM đọc để quyết định gọi tool và trích tham số.</p>
+      </div>
+    </div>
+    <div class="grid two-col" id="toolCards"></div>
+
+    <div class="section-head">
+      <div>
+        <div class="kicker">Task 1.1 · config/test_cases.json</div>
+        <h2>Bộ 5 Test Cases</h2>
+      </div>
+    </div>
+    <div class="card"><div class="table-wrap"><table class="data" id="tcTable"></table></div></div>
+
+    <div class="section-head">
+      <div>
+        <div class="kicker">src/prompts.py</div>
+        <h2>System Prompts</h2>
+      </div>
+    </div>
+    <div class="grid two-col">
+      <div class="card card-pad"><div class="kicker" style="margin-bottom:8px">ReAct Agent (Cấp 3)</div><pre class="code" id="reactPrompt" style="white-space:pre-wrap"></pre></div>
+      <div class="card card-pad"><div class="kicker" style="margin-bottom:8px">Chatbot Baseline (Cấp 2)</div><pre class="code" id="chatPrompt" style="white-space:pre-wrap"></pre></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span id="footStudent">Day 03 Lab · VinUni AI20K</span>
+  <span id="footMcp"></span>
+</footer>
+
+<script>
+"use strict";
+const $ = (sel, el = document) => el.querySelector(sel);
+const state = { overview: null, running: false, caseId: null, run: null };
+const PRICE = {
+  "claude-sonnet-5": "$2 / $10 · 1M token", "claude-haiku-4-5": "$1 / $5 · 1M token", "claude-opus-5": "$5 / $25 · 1M token",
+  "Offline-Mock-Model-2026": "Miễn phí", "gemini-2.5-flash": "Có free tier", "gpt-4o-mini": "Giá rẻ"
+};
+const TYPE_LABEL = {
+  direct_query: "Hỏi chung", single_tool_query: "1 Tool", appointment_booking: "Đặt lịch", multi_step_reasoning: "Đa bước",
+  edge_case_handling: "Tình huống biên", dynamic_decision: "Quyết định động", no_available_slot: "Hết lịch",
+  safety_guardrail: "An toàn", parallel_tools: "Tool song song"
+};
+
+/* ---------------- utils ---------------- */
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function fmtMs(ms) {
+  if (ms == null || isNaN(ms)) return "—";
+  if (ms === 0) return "0";
+  if (ms < 1) return ms.toFixed(2) + " ms";
+  if (ms < 1000) return Math.round(ms) + " ms";
+  return (ms / 1000).toFixed(ms < 10000 ? 2 : 1) + " s";
+}
+function jsonHtml(obj) {
+  const s = esc(JSON.stringify(obj, null, 2));
+  return s.replace(/(&quot;(?:[^&]|&(?!quot;))*?&quot;)(\s*:)?|\b(true|false|null)\b|(-?\d+(?:\.\d+)?)/g, (m, str, colon, lit, num) => {
+    if (str) return colon ? `<span class="j-key">${str}</span>${colon}` : `<span class="j-str">${str}</span>`;
+    if (lit) return `<span class="j-lit">${lit}</span>`;
+    return `<span class="j-num">${num}</span>`;
+  });
+}
+function mdToHtml(src) {
+  const inline = s => s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+  let html = "", inList = false, table = [];
+  const closeList = () => { if (inList) { html += "</ul>"; inList = false; } };
+  const closeTable = () => {
+    if (!table.length) return;
+    const rows = table.filter(r => !/^\s*\|?\s*:?-{2,}/.test(r));
+    html += '<div class="md-table"><table>' + rows.map((r, i) => {
+      const cells = r.replace(/^\s*\||\|\s*$/g, "").split("|").map(c => inline(c.trim()));
+      const tag = i === 0 ? "th" : "td";
+      return "<tr>" + cells.map(c => `<${tag}>${c}</${tag}>`).join("") + "</tr>";
+    }).join("") + "</table></div>";
+    table = [];
+  };
+  for (const raw of esc(src).split("\n")) {
+    const line = raw.trimEnd();
+    if (/^\s*\|.*\|\s*$/.test(line)) { closeList(); table.push(line); continue; }
+    closeTable();
+    if (/^\s*[-*•]\s+/.test(line)) { if (!inList) { html += "<ul>"; inList = true; } html += "<li>" + inline(line.replace(/^\s*[-*•]\s+/, "")) + "</li>"; continue; }
+    closeList();
+    if (/^#{1,4}\s+/.test(line)) { html += "<h4>" + inline(line.replace(/^#{1,4}\s+/, "")) + "</h4>"; continue; }
+    if (/^-{3,}$/.test(line.trim())) { html += "<hr>"; continue; }
+    if (!line.trim()) continue;
+    html += "<p>" + inline(line) + "</p>";
+  }
+  closeList(); closeTable();
+  return html;
+}
+async function getJSON(url, opts) {
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+  return res.json();
+}
+function statusClass(status) {
+  if (!status) return "manual";
+  if (status === "SUCCESS") return "ok";
+  if (["NOT_FOUND", "SLOT_UNAVAILABLE", "NO_AVAILABLE_SLOT"].includes(status)) return "warn";
+  return "bad";
+}
+
+/* ---------------- theme & tabs ---------------- */
+function setupTheme() {
+  const root = document.documentElement;
+  try { const saved = localStorage.getItem("vm-theme"); if (saved) root.dataset.theme = saved; } catch (e) { /* storage blocked */ }
+  $("#themeBtn").addEventListener("click", () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("vm-theme", root.dataset.theme); } catch (e) { /* storage blocked */ }
+    rerenderCharts();
+  });
+}
+function setupTabs() {
+  const tabs = [...document.querySelectorAll(".tab")];
+  const show = id => {
+    tabs.forEach(t => t.setAttribute("aria-selected", String(t.dataset.tab === id)));
+    document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + id));
+    if (location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+    rerenderCharts();
+  };
+  tabs.forEach(t => t.addEventListener("click", () => show(t.dataset.tab)));
+  const initial = location.hash.slice(1);
+  if (tabs.some(t => t.dataset.tab === initial)) show(initial);
+}
+
+/* ---------------- header & overview ---------------- */
+function renderHeader() {
+  const o = state.overview, s = o.settings;
+  const p = s.providers.find(x => x.id === s.default_provider);
+  const real = s.default_provider !== "mock";
+  $("#providerPill").innerHTML = `<span class="dot ${real ? "ok" : "warn"}"></span><span><span class="long">LLM mặc định: </span><b>${esc(p.label)}</b> · ${esc(p.models[0])}</span>`;
+  $("#footStudent").textContent = `${o.student.name || "Học viên"} · ${o.student.student_id || ""} · Day 03 Lab · VinUni AI20K`;
+  $("#footMcp").textContent = `${o.mcp.name} · v${o.mcp.version}`;
+}
+
+function renderOverview() {
+  const o = state.overview;
+  const items = o.requirements.flatMap(g => g.items);
+  const auto = items.filter(i => i.status !== "manual");
+  const passed = auto.filter(i => i.status === "pass").length;
+  const ts = o.trace_summary;
+
+  $("#heroMeta").innerHTML = [
+    o.student.name && `👤 ${esc(o.student.name)}`, o.student.student_id && `MSSV ${esc(o.student.student_id)}`,
+    `🏥 Đề tài 4.3 · Vinmec`, `🌐 ${esc(o.mcp.name)}`
+  ].filter(Boolean).map(t => `<span>${t}</span>`).join("");
+
+  $("#heroKpis").innerHTML = [
+    [`${passed}<small>/${auto.length}</small>`, "Yêu cầu tự động đạt"],
+    [`${o.agentic_fit.total}<small>/20</small>`, "Điểm Agentic Fit"],
+    [`${ts.covered_test_cases}<small>/${ts.total_test_cases}</small>`, "Test case có trong trace"],
+    [`${o.tools.length}<small> tools</small>`, `${ts.tool_calls} lượt gọi Tool trong trace`]
+  ].map(([v, l]) => `<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+
+  const pending = items.filter(i => i.status === "fail" || i.status === "warn");
+  const manual = items.filter(i => i.status === "manual");
+  $("#remaining").innerHTML = pending.length
+    ? `<div class="callout ${pending.some(i => i.status === "fail") ? "bad" : "warn"}" style="margin-bottom:16px"><span class="ci">!</span><div><b>Còn ${pending.length} mục cần hoàn thành trước khi nộp:</b><ul style="margin:6px 0 0;padding-left:18px">${pending.map(i => `<li><b>${esc(i.label)}</b> — ${esc(i.detail)}</li>`).join("")}</ul>${manual.length ? `<div class="muted" style="margin-top:6px">Và ${manual.length} mục tự xác nhận: ${manual.map(i => esc(i.label)).join(" · ")}.</div>` : ""}</div></div>`
+    : `<div class="callout ok" style="margin-bottom:16px"><span class="ci">✓</span><div><b>Tất cả yêu cầu kiểm tra tự động đã đạt.</b> ${manual.length ? `Hãy tự xác nhận: ${manual.map(i => esc(i.label)).join(" · ")}.` : ""}</div></div>`;
+
+  const ICON = { pass: "✓", warn: "!", fail: "✕", manual: "◌" };
+  const WORD = { pass: "Đạt", warn: "Cần xử lý", fail: "Chưa đạt", manual: "Tự xác nhận" };
+  const BADGE = { pass: "ok", warn: "warn", fail: "bad", manual: "manual" };
+  $("#reqGrid").innerHTML = o.requirements.map(g => {
+    const counts = { pass: 0, warn: 0, fail: 0, manual: 0 };
+    g.items.forEach(i => counts[i.status]++);
+    const seg = k => counts[k] ? `<span class="p-${k === "pass" ? "ok" : k === "fail" ? "bad" : k}" style="flex:${counts[k]}"></span>` : "";
+    return `<div class="card req-card">
+      <div class="req-head"><h3>${g.weight ? "" : ""}${esc(g.title)}</h3><span class="weight">${g.weight ? g.weight + "%" : "Setup"}</span></div>
+      <div class="progress" title="${counts.pass} đạt · ${counts.warn} cần xử lý · ${counts.fail} chưa đạt · ${counts.manual} tự xác nhận">${seg("pass")}${seg("warn")}${seg("fail")}${seg("manual")}</div>
+      <div class="muted" style="font-size:12px">${counts.pass}/${g.items.length} đạt${counts.warn ? ` · ${counts.warn} cần xử lý` : ""}${counts.fail ? ` · ${counts.fail} chưa đạt` : ""}${counts.manual ? ` · ${counts.manual} tự xác nhận` : ""}</div>
+      <ul class="req-list">${g.items.map(i => `<li>
+        <span class="st ${i.status}" aria-hidden="true">${ICON[i.status]}</span>
+        <div><div class="req-label">${esc(i.label)} <span class="badge ${BADGE[i.status]}">${WORD[i.status]}</span></div>
+        <div class="req-detail">${esc(i.detail)}</div>${i.evidence ? `<div class="req-evidence">${esc(i.evidence)}</div>` : ""}</div>
+      </li>`).join("")}</ul></div>`;
+  }).join("");
+
+  const fit = o.agentic_fit;
+  $("#fitCard").innerHTML = `
+    ${fit.criteria.map(c => `<div class="fit-row" title="${esc(c.criterion)}: ${c.score}/5">
+      <div class="fit-name">${c.index}. ${esc(c.criterion)}</div>
+      <div class="fit-track"><div class="fit-fill" style="width:0" data-w="${c.score / c.max * 100}"></div></div>
+      <div class="fit-val">${c.score}<span class="muted">/5</span></div>
+      <div class="fit-note">${esc(c.note)}</div></div>`).join("")}
+    <div class="fit-total">
+      <div><div class="kicker">Tổng điểm</div><div class="big">${fit.total}<span class="muted" style="font-size:16px">/20</span></div></div>
+      <div class="track20" title="Tổng ${fit.total}/20 · ngưỡng ${fit.threshold}">
+        <div class="fit-fill" style="width:0" data-w="${fit.total / fit.max * 100}"></div>
+        <div class="threshold" style="left:${fit.threshold / fit.max * 100}%" data-label="ngưỡng ${fit.threshold}"></div>
+      </div>
+      <span class="badge ${fit.total > fit.threshold ? "ok" : "warn"}">${fit.total > fit.threshold ? "✓ Phù hợp triển khai Agentic System" : "Cân nhắc dùng Chatbot"}</span>
+    </div>`;
+  requestAnimationFrame(() => document.querySelectorAll("#fitCard .fit-fill").forEach(el => el.style.width = el.dataset.w + "%"));
+}
+
+function renderArchitectureParams() {
+  const s = state.overview.settings;
+  const anth = s.providers.find(p => p.id === "anthropic");
+  const rows = [
+    ["LLM_PROVIDER", s.default_provider, ".env", "Chọn LLM thật hoặc Mock offline", true],
+    ["Model", s.providers.find(p => p.id === s.default_provider).models[0], ".env · ANTHROPIC_MODEL / LLM_MODEL", "Chất lượng suy luận và chi phí token", true],
+    ["MAX_ITERATIONS", s.default_max_iterations, "src/prompts.py", "Số vòng ReAct tối đa — chống lặp vô hạn", true],
+    ["System prompt", "7 quy tắc ReAct", "src/prompts.py", "Hành vi: khi nào gọi tool, chống bịa, an toàn y tế", true],
+    ["So sánh Chatbot Baseline", "tắt", "Dashboard", "Chạy thêm LLM không tool để đối chiếu Cấp 2 và Cấp 3", true],
+    ["max_tokens", s.max_tokens, "src/providers.py", "Độ dài tối đa mỗi phản hồi LLM", false],
+    ["thinking (Claude)", "adaptive · summarized", "src/providers.py", "Tóm tắt suy luận được dùng làm Thought trong trace", false],
+    ["fallbacks (Claude)", '"default"', "src/providers.py", "Tự chạy lại trên model dự phòng nếu bị từ chối vì an toàn", false],
+    ["temperature (Gemini)", "0.2", "src/providers.py", "Độ ngẫu nhiên khi chọn tool", false],
+    ["Tool Schemas", state.overview.tools.map(t => t.name).join(", "), "src/tools.py", "Công cụ LLM được phép gọi và tham số", false],
+  ];
+  $("#paramTable").innerHTML = `<thead><tr><th>Tham số</th><th>Giá trị hiện tại</th><th>Nơi cấu hình</th><th>Ảnh hưởng</th></tr></thead><tbody>${rows.map(([k, v, where, eff, live]) =>
+    `<tr><td>${live ? `<b>${esc(k)}</b>` : esc(k)}</td><td><span class="inline-code">${esc(v)}</span></td><td class="muted">${esc(where)}</td><td>${esc(eff)}${live ? ' <span class="badge brand">chỉnh ở Demo</span>' : ""}</td></tr>`).join("")}</tbody>`;
+  if (!anth.available) { /* no-op: bảng vẫn hiển thị cấu hình */ }
+}
+
+/* ---------------- tools tab ---------------- */
+function renderTools() {
+  const o = state.overview;
+  $("#toolCards").innerHTML = o.tools.map(t => {
+    const props = t.parameters.properties || {}, req = t.parameters.required || [];
+    return `<div class="card card-pad tool-card">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(t.name)}</h3><span class="badge ${t.name.includes("schedule_appointment") ? "warn" : "brand"}">${t.name.includes("schedule_appointment") ? "Hành động (Write)" : "Tra cứu (Read)"}</span></div>
+      <div class="desc">${esc(t.description)}</div>
+      <div class="table-wrap"><table class="data"><thead><tr><th>Tham số</th><th>Kiểu</th><th>Bắt buộc</th><th>Mô tả</th></tr></thead><tbody>
+      ${Object.entries(props).map(([k, v]) => `<tr><td><span class="inline-code">${esc(k)}</span></td><td>${esc(v.type)}</td><td>${req.includes(k) ? '<span class="badge ok">✓ có</span>' : '<span class="badge manual">không</span>'}</td><td>${esc(v.description)}</td></tr>`).join("")}
+      </tbody></table></div>
+      <details class="rpc" style="margin-top:12px"><summary>JSON Schema gốc</summary><pre class="code">${jsonHtml(t)}</pre></details>
+    </div>`;
+  }).join("");
+  $("#tcTable").innerHTML = `<thead><tr><th>ID</th><th>Loại</th><th>Câu hỏi</th><th>Kỳ vọng</th><th>Độ phức tạp</th></tr></thead><tbody>${o.test_cases.map(tc =>
+    `<tr><td><b>${esc(tc.id)}</b></td><td><span class="chip">${esc(TYPE_LABEL[tc.type] || tc.type)}</span></td><td>${esc(tc.question)}</td><td class="muted">${esc(tc.expected_behavior)}</td><td><span class="badge ${tc.complexity === "High" ? "warn" : tc.complexity === "Low" ? "ok" : "brand"}">${esc(tc.complexity)}</span></td></tr>`).join("")}</tbody>`;
+  $("#reactPrompt").textContent = o.prompts.react;
+  $("#chatPrompt").textContent = o.prompts.chatbot;
+}
+
+/* ---------------- demo controls ---------------- */
+function renderDemoControls() {
+  const s = state.overview.settings;
+  const sel = $("#providerSel");
+  sel.innerHTML = s.providers.map(p => `<option value="${p.id}" ${p.available ? "" : "disabled"}>${esc(p.label)}${p.available ? "" : " — chưa có API key"}</option>`).join("");
+  sel.value = s.default_provider;
+  const syncModels = () => {
+    const p = s.providers.find(x => x.id === sel.value);
+    $("#modelSel").innerHTML = p.models.map(m => `<option>${esc(m)}</option>`).join("");
+    $("#providerNote").textContent = p.note;
+    syncPrice();
+  };
+  const syncPrice = () => { $("#priceHint").textContent = PRICE[$("#modelSel").value] || ""; };
+  sel.addEventListener("change", syncModels);
+  $("#modelSel").addEventListener("change", syncPrice);
+  syncModels();
+
+  const range = $("#iterRange");
+  range.value = s.default_max_iterations;
+  $("#iterVal").textContent = range.value;
+  range.addEventListener("input", () => $("#iterVal").textContent = range.value);
+
+  $("#promptBox").value = state.overview.prompts.react;
+  $("#promptReset").addEventListener("click", () => $("#promptBox").value = state.overview.prompts.react);
+
+  const groups = {};
+  state.overview.demo_cases.forEach(c => (groups[c.group] ||= []).push(c));
+  $("#caseList").innerHTML = Object.entries(groups).map(([g, cases]) => `<div class="group-label">${esc(g)}</div><div class="cases">${cases.map(c => `
+    <button class="case" type="button" data-id="${esc(c.id)}">
+      <div class="case-top"><span class="badge brand">${esc(c.id)}</span><span class="chip">${esc(TYPE_LABEL[c.type] || c.type)}</span><span class="chip">${esc(c.complexity)}</span></div>
+      <div class="case-title">${esc(c.title)}</div>
+      <div class="case-q">${esc(c.question)}</div>
+    </button>`).join("")}</div>`).join("");
+  $("#caseList").addEventListener("click", e => {
+    const btn = e.target.closest(".case");
+    if (btn) selectCase(btn.dataset.id);
+  });
+  $("#queryBox").addEventListener("input", () => {
+    const c = state.overview.demo_cases.find(x => x.id === state.caseId);
+    if (c && $("#queryBox").value.trim() !== c.question) {
+      state.caseId = null;
+      document.querySelectorAll(".case").forEach(b => b.classList.remove("selected"));
+      $("#expectedBox").hidden = true;
+    }
+  });
+  $("#queryBox").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) runAgent(); });
+  $("#runBtn").addEventListener("click", runAgent);
+  $("#resetDbBtn").addEventListener("click", async () => { await getJSON("/api/reset", { method: "POST" }); loadSchedules(); });
+  selectCase(state.overview.demo_cases.find(c => c.type === "multi_step_reasoning")?.id || state.overview.demo_cases[0]?.id);
+}
+
+function selectCase(id) {
+  const c = state.overview.demo_cases.find(x => x.id === id);
+  if (!c) return;
+  state.caseId = id;
+  document.querySelectorAll(".case").forEach(b => b.classList.toggle("selected", b.dataset.id === id));
+  $("#queryBox").value = c.question;
+  $("#expectedBox").hidden = false;
+  $("#expectedBox").innerHTML = `<b>Kỳ vọng (${esc(c.id)}):</b> ${esc(c.expected_behavior)}`;
+}
+
+async function loadSchedules() {
+  try {
+    const data = await getJSON("/api/schedules");
+    $("#schedules").innerHTML = Object.entries(data.initial).map(([spec, doctors]) => `<div class="sched-spec"><h5>${esc(spec)}</h5>${doctors.map(d => {
+      const cur = (data.current[spec] || []).find(x => x.doctor_name === d.doctor_name);
+      const free = new Set(cur ? cur.available_slots : []);
+      return `<div class="sched-doc">${esc(d.doctor_name)} <span>· ${esc(d.hospital)}</span></div><div class="slots">${d.available_slots.map(s => `<span class="slot ${free.has(s) ? "" : "booked"}" title="${free.has(s) ? "Còn trống" : "Đã được đặt trong phiên demo"}">${esc(s)}</span>`).join("")}</div>`;
+    }).join("")}</div>`).join("") + `<div class="muted" style="font-size:11.5px;margin-top:8px">Bệnh nhân: ${Object.entries(data.patients).map(([k, v]) => `${esc(k)} (${esc(v.full_name)})`).join(" · ")}</div>`;
+  } catch (e) {
+    $("#schedules").textContent = "Không tải được dữ liệu lịch: " + e.message;
+  }
+}
+
+/* ---------------- live run ---------------- */
+function stepCardHtml(s) {
+  const isFinal = !!s.final, isLimit = s.final && s.final.limit;
+  const calls = s.calls.map(c => {
+    const obs = c.observation || {};
+    return `<div class="phase ph-action"><div class="phase-label"><i></i>Action</div><div class="phase-text"><code class="call">${esc(c.tool_name)}(${esc(JSON.stringify(c.arguments))})</code></div></div>
+      <div class="phase ph-obs"><div class="phase-label"><i></i>Observation</div><div class="phase-text">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px"><span class="badge ${statusClass(obs.status)}">${esc(obs.status || "—")}</span><span class="muted" style="font-size:12px">tool ${fmtMs(c.tool_latency_ms)}</span></div>
+        ${esc(obs.message || obs.error || "")}
+        <details class="rpc"><summary>${c.rpc ? "JSON-RPC 2.0 · request / response" : "Observation JSON"}</summary><pre class="code">${c.rpc ? jsonHtml({ request: c.rpc.request, response: c.rpc.response }) : jsonHtml(obs)}</pre></details>
+      </div></div>`;
+  }).join("");
+  const thought = s.thinking
+    ? `<span class="thinking"><span class="spinner"></span>LLM đang suy luận…</span>`
+    : esc(s.thought || "—");
+  const ms = s.final ? s.final.latency_ms : (s.calls[0] && s.calls[0].llm_latency_ms != null ? s.calls[0].llm_latency_ms : null);
+  return `<div class="step ${isFinal ? "final" : ""} ${isLimit ? "limit" : ""}">
+    <div class="step-rail"><span class="step-dot">${s.step}</span></div>
+    <div class="step-body">
+      <div class="step-head"><span class="title">Step ${s.step}</span>
+        ${s.thinking ? '<span class="badge brand">đang chạy</span>' : isLimit ? '<span class="badge warn">Chạm MAX_ITERATIONS</span>' : isFinal ? '<span class="badge ok">Final Answer</span>' : `<span class="badge warn">${s.calls.length} tool call</span>`}
+        <span class="ms">${ms != null ? "LLM " + fmtMs(ms) : ""}</span></div>
+      <div class="phase ph-thought"><div class="phase-label"><i></i>Thought</div><div class="phase-text">${thought}</div></div>
+      ${calls}
+      ${s.final ? `<div class="phase ph-final"><div class="phase-label"><i></i>Final Answer</div><div class="phase-text md">${mdToHtml(s.final.output)}</div></div>` : ""}
+    </div></div>`;
+}
+
+function renderRunTimeline() {
+  const r = state.run;
+  $("#timeline").innerHTML = r.steps.length ? r.steps.map(stepCardHtml).join("") : `<div class="empty"><span class="spinner" style="display:inline-block"></span></div>`;
+  const tl = $("#timeline").lastElementChild;
+  if (tl && state.running) tl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function renderRunBar() {
+  const r = state.run;
+  const stat = (k, v) => `<span class="stat">${k} <b>${v}</b></span>`;
+  $("#runBar").innerHTML = `${state.running ? '<span class="spinner"></span>' : r.error ? '<span class="badge bad">Lỗi</span>' : '<span class="badge ok">Hoàn tất</span>'}
+    ${stat("Provider", esc(r.provider || "…"))}${stat("Model", esc(r.model || "…"))}
+    ${stat("Step", `${r.steps.length}/${r.maxIterations || "?"}`)}${stat("Tool calls", r.entries.filter(e => e.action_type === "TOOL_EXECUTION").length)}
+    ${r.done ? stat("Tổng thời gian", fmtMs(r.done.agent_ms)) : ""}
+    ${r.customPrompt ? '<span class="badge brand">System prompt đã chỉnh</span>' : ""}`;
+}
+
+function getStep(n) {
+  let s = state.run.steps.find(x => x.step === n);
+  if (!s) { s = { step: n, thinking: true, thought: "", calls: [], final: null }; state.run.steps.push(s); }
+  return s;
+}
+
+function handleEvent(ev) {
+  const r = state.run;
+  if (ev.type === "start") {
+    Object.assign(r, { provider: ev.provider, model: ev.model, maxIterations: ev.max_iterations, customPrompt: ev.custom_prompt });
+    if (ev.requested_provider !== "mock" && ev.provider === "MockOfflineProvider") addLog("warn", "Provider được chọn chưa sẵn sàng — đang chạy bằng Mock.");
+  } else if (ev.type === "rpc") {
+    r.pendingRpc.push(ev);
+  } else if (ev.type === "event") {
+    const e = ev.entry;
+    if (e.action_type === "LLM_THINKING") { getStep(e.step); }
+    else {
+      r.entries.push(e);
+      const s = getStep(e.step);
+      s.thinking = false;
+      s.thought = e.thought;
+      if (e.action_type === "TOOL_EXECUTION") {
+        const idx = r.pendingRpc.findIndex(p => p.request.params.name === e.tool_name);
+        const rpc = idx >= 0 ? r.pendingRpc.splice(idx, 1)[0] : null;
+        s.calls.push({ ...e, rpc });
+      } else {
+        s.final = { output: e.output, latency_ms: e.latency_ms, limit: String(e.output).startsWith("Đã đạt giới hạn") };
+        $("#agOut").innerHTML = mdToHtml(e.output);
+      }
+      renderRunChart();
+    }
+    renderRunTimeline();
+  } else if (ev.type === "log") {
+    addLog(/Mock/.test(ev.line) ? "warn" : "warn", ev.line);
+  } else if (ev.type === "chatbot_start") {
+    $("#compareCard").hidden = false;
+    $("#cbOut").innerHTML = '<span class="thinking" style="display:inline-flex;gap:8px;align-items:center;color:var(--muted)"><span class="spinner"></span>Chatbot đang trả lời…</span>';
+  } else if (ev.type === "chatbot") {
+    $("#cbOut").innerHTML = mdToHtml(ev.output);
+    $("#cbMs").textContent = fmtMs(ev.latency_ms) + " · 0 tool";
+  } else if (ev.type === "error") {
+    r.error = ev.message;
+    addLog("bad", ev.message);
+  } else if (ev.type === "done") {
+    r.done = ev;
+    $("#agMs").textContent = `${fmtMs(ev.agent_ms)} · ${ev.tool_calls} tool`;
+    if (ev.hit_limit) addLog("warn", `Agent dừng vì chạm MAX_ITERATIONS = ${r.maxIterations}. Tăng giá trị để Agent hoàn tất chuỗi suy luận.`);
+  }
+  renderRunBar();
+}
+
+function addLog(kind, text) {
+  const div = document.createElement("div");
+  div.className = `callout ${kind}`;
+  div.innerHTML = `<span class="ci">!</span><div>${esc(text)}</div>`;
+  $("#runLogs").appendChild(div);
+}
+
+async function runAgent() {
+  if (state.running) return;
+  const query = $("#queryBox").value.trim();
+  if (!query) { $("#queryBox").focus(); return; }
+  state.running = true;
+  state.run = { steps: [], entries: [], pendingRpc: [], provider: "", model: "", maxIterations: +$("#iterRange").value };
+  $("#runBtn").disabled = true;
+  $("#runBtn").textContent = "Đang chạy…";
+  $("#runLogs").innerHTML = "";
+  $("#runChartCard").hidden = true;
+  $("#compareCard").hidden = !$("#compareChk").checked;
+  $("#cbOut").innerHTML = ""; $("#agOut").innerHTML = ""; $("#cbMs").textContent = ""; $("#agMs").textContent = "";
+  renderRunBar(); renderRunTimeline();
+
+  const body = {
+    query, provider: $("#providerSel").value, model: $("#modelSel").value,
+    max_iterations: +$("#iterRange").value, compare_chatbot: $("#compareChk").checked,
+    reset_state: $("#resetChk").checked, system_prompt: $("#promptBox").value
+  };
+  try {
+    const res = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!res.ok || !res.body) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let idx;
+      while ((idx = buffer.indexOf("\n\n")) >= 0) {
+        const chunk = buffer.slice(0, idx);
+        buffer = buffer.slice(idx + 2);
+        const line = chunk.split("\n").find(l => l.startsWith("data: "));
+        if (line) handleEvent(JSON.parse(line.slice(6)));
+      }
+    }
+  } catch (e) {
+    state.run.error = e.message;
+    addLog("bad", "Không chạy được Agent: " + e.message);
+  } finally {
+    state.running = false;
+    $("#runBtn").disabled = false;
+    $("#runBtn").textContent = "▶ Chạy Agent";
+    renderRunBar(); renderRunTimeline();
+    loadSchedules();
+  }
+}
+
+/* ---------------- waterfall chart ---------------- */
+const KIND = {
+  llm: { label: "LLM suy luận (Thought → Action)", cls: "bar-llm", color: "var(--c-llm)" },
+  tool: { label: "MCP Tool thực thi (Observation)", cls: "bar-tool", color: "var(--c-tool)" },
+  final: { label: "LLM tổng hợp Final Answer", cls: "bar-final", color: "var(--c-final)" }
+};
+function buildSegments(entries) {
+  const segs = []; let t = 0; const seen = new Set();
+  for (const e of entries) {
+    if (e.action_type === "TOOL_EXECUTION") {
+      const key = e.query + "|" + e.step;
+      if (!seen.has(key)) {
+        seen.add(key);
+        const llm = e.llm_latency_ms ?? e.latency_ms ?? 0;
+        segs.push({ kind: "llm", label: `S${e.step} · LLM`, start: t, dur: llm, entry: e }); t += llm;
+      }
+      const tool = e.tool_latency_ms ?? 0;
+      segs.push({ kind: "tool", label: `S${e.step} · ${e.tool_name}`, start: t, dur: tool, entry: e }); t += tool;
+    } else if (e.action_type === "FINAL_ANSWER") {
+      const d = e.latency_ms || 0;
+      segs.push({ kind: "final", label: `S${e.step} · Final Answer`, start: t, dur: d, entry: e }); t += d;
+    }
+  }
+  return { segs, total: t };
+}
+function niceStep(total) {
+  const target = total / 5;
+  const steps = [100, 200, 500, 1000, 2000, 5000, 10000, 20000, 30000, 60000];
+  return steps.find(s => s >= target) || Math.ceil(target / 60000) * 60000;
+}
+const charts = new Map();
+function renderWaterfall(container, entries) {
+  charts.set(container, entries);
+  const { segs, total } = buildSegments(entries);
+  if (!segs.length) { container.innerHTML = '<div class="muted">Chưa có dữ liệu.</div>'; return; }
+  const width = Math.max(320, container.clientWidth || 700);
+  const narrow = width < 560;
+  const L = narrow ? 118 : 188, R = 70, top = 22, rowH = 30, barH = 14;
+  const H = top + segs.length * rowH + 8;
+  const span = Math.max(total, 1);
+  const stepMs = niceStep(span);
+  const maxX = Math.ceil(span / stepMs) * stepMs;
+  const sx = v => L + (v / maxX) * (width - L - R);
+  let ticks = "";
+  for (let v = 0; v <= maxX + 1e-6; v += stepMs) {
+    ticks += `<line class="gridline" x1="${sx(v)}" x2="${sx(v)}" y1="${top - 6}" y2="${H - 6}"/><text class="axis-text" x="${sx(v)}" y="${top - 10}" text-anchor="middle">${fmtMs(v)}</text>`;
+  }
+  const rows = segs.map((s, i) => {
+    const y = top + i * rowH;
+    const x = sx(s.start), w = Math.max(3, sx(s.start + s.dur) - x);
+    const labelInsideLeft = x + w + 64 > width;
+    const lbl = narrow ? s.label.replace(/doctor_schedule_query/, "query").replace(/schedule_appointment/, "booking").replace("Final Answer", "Final") : s.label;
+    return `<g class="wf-row" data-i="${i}">
+      <rect class="hit" x="0" y="${y}" width="${width}" height="${rowH}"/>
+      <text class="row-label" x="${L - 10}" y="${y + rowH / 2 + 4}" text-anchor="end">${esc(lbl)}</text>
+      <rect class="${KIND[s.kind].cls}" x="${x}" y="${y + (rowH - barH) / 2}" width="${w}" height="${barH}" rx="4"/>
+      <text class="val-label" x="${labelInsideLeft ? x - 6 : x + w + 6}" y="${y + rowH / 2 + 4}" text-anchor="${labelInsideLeft ? "end" : "start"}">${fmtMs(s.dur)}</text>
+    </g>`;
+  }).join("");
+  const present = [...new Set(segs.map(s => s.kind))];
+  container.innerHTML = `<div class="wf">
+    <div class="wf-legend">${present.map(k => `<span><span class="sw" style="background:${KIND[k].color}"></span>${KIND[k].label}</span>`).join("")}<span class="muted">Tổng: <b>${fmtMs(total)}</b></span></div>
+    <svg viewBox="0 0 ${width} ${H}" role="img" aria-label="Biểu đồ waterfall độ trễ ${segs.length} bước, tổng ${fmtMs(total)}">
+      ${ticks}<line class="baseline" x1="${L}" x2="${L}" y1="${top - 6}" y2="${H - 6}"/>${rows}
+    </svg>
+    <div class="wf-tip" hidden></div>
+    <div class="wf-actions"><button class="btn btn-sm wf-table-btn" type="button">Xem dạng bảng</button></div>
+    <div class="table-wrap wf-table" hidden><table class="data"><thead><tr><th>Bước</th><th>Loại</th><th>Bắt đầu</th><th>Thời lượng</th></tr></thead><tbody>
+      ${segs.map(s => `<tr><td>${esc(s.label)}</td><td>${KIND[s.kind].label}</td><td>${fmtMs(s.start)}</td><td><b>${fmtMs(s.dur)}</b></td></tr>`).join("")}
+    </tbody></table></div></div>`;
+
+  const wf = container.firstElementChild, tip = $(".wf-tip", wf), svg = $("svg", wf);
+  svg.addEventListener("mousemove", ev => {
+    const g = ev.target.closest(".wf-row");
+    if (!g) { tip.hidden = true; return; }
+    const s = segs[+g.dataset.i];
+    const e = s.entry;
+    tip.innerHTML = `<div class="tt"><span class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${KIND[s.kind].color}"></span>${esc(KIND[s.kind].label)}</div>
+      <div class="tr"><span>Bước</span><b>Step ${e.step}</b></div>
+      ${s.kind === "tool" ? `<div class="tr"><span>Tool</span><b>${esc(e.tool_name)}</b></div><div class="tr"><span>Status</span><b>${esc((e.observation || {}).status || "—")}</b></div>` : ""}
+      <div class="tr"><span>Bắt đầu</span><b>${fmtMs(s.start)}</b></div><div class="tr"><span>Thời lượng</span><b>${fmtMs(s.dur)}</b></div>`;
+    tip.hidden = false;
+    const box = wf.getBoundingClientRect();
+    let x = ev.clientX - box.left + 14, y = ev.clientY - box.top + 14;
+    if (x + 290 > box.width) x = ev.clientX - box.left - 290;
+    tip.style.left = Math.max(0, x) + "px"; tip.style.top = y + "px";
+  });
+  svg.addEventListener("mouseleave", () => tip.hidden = true);
+  $(".wf-table-btn", wf).addEventListener("click", ev => {
+    const t = $(".wf-table", wf); t.hidden = !t.hidden;
+    ev.target.textContent = t.hidden ? "Xem dạng bảng" : "Ẩn bảng";
+  });
+}
+function renderRunChart() {
+  if (!state.run || !state.run.entries.length) return;
+  $("#runChartCard").hidden = false;
+  renderWaterfall($("#runChart"), state.run.entries);
+}
+function rerenderCharts() {
+  for (const [el, entries] of charts) if (el.isConnected && el.offsetParent !== null) renderWaterfall(el, entries);
+}
+let resizeTimer;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(rerenderCharts, 150); });
+
+/* ---------------- evidence tab ---------------- */
+async function loadTrace() {
+  let data;
+  try { data = await getJSON("/api/trace"); }
+  catch (e) { $("#traceGroups").innerHTML = `<div class="callout bad"><span class="ci">!</span><div>Không đọc được trace: ${esc(e.message)}</div></div>`; return; }
+  const sm = data.summary;
+  const full = sm.total_test_cases && sm.covered_test_cases === sm.total_test_cases;
+  $("#traceSummary").innerHTML = `<div class="callout ${full ? "ok" : "warn"}" style="margin-bottom:16px"><span class="ci">${full ? "✓" : "!"}</span><div>
+    <b>${sm.events} sự kiện · ${sm.tool_calls} lượt gọi Tool · ${sm.queries} truy vấn · bao phủ ${sm.covered_test_cases}/${sm.total_test_cases} test cases</b>${sm.updated_at ? ` · cập nhật ${esc(sm.updated_at)}` : ""}
+    ${full ? "" : `<div style="margin-top:4px">File trace chưa chứa đủ 5 test cases. Chạy lại <span class="inline-code">python src/app.py --all</span> rồi bấm “Tải lại trace”.</div>`}</div></div>`;
+  const groups = [];
+  for (const e of data.entries) {
+    let g = groups.find(x => x.query === e.query);
+    if (!g) { g = { query: e.query, entries: [] }; groups.push(g); }
+    g.entries.push(e);
+  }
+  const tcs = state.overview ? state.overview.test_cases : [];
+  $("#traceGroups").innerHTML = groups.map((g, i) => {
+    const tc = tcs.find(t => t.question === g.query);
+    const tools = g.entries.filter(e => e.action_type === "TOOL_EXECUTION");
+    const total = buildSegments(g.entries).total;
+    return `<div class="card ev-group">
+      <div class="ev-head"><div class="meta">${tc ? `<span class="badge brand">${esc(tc.id)}</span><span class="chip">${esc(TYPE_LABEL[tc.type] || tc.type)}</span>` : '<span class="chip">Truy vấn tự do</span>'}
+        <span class="chip">${Math.max(...g.entries.map(e => e.step))} step</span><span class="chip">${tools.length} tool call</span><span class="chip">${fmtMs(total)}</span>
+        ${tools.map(t => `<span class="badge ${statusClass((t.observation || {}).status)}">${esc(t.tool_name)} · ${esc((t.observation || {}).status || "—")}</span>`).join("")}</div>
+        <div class="q">${esc(g.query)}</div></div>
+      <div class="ev-body"><div class="ev-chart" data-g="${i}"></div>
+        <details class="steps"><summary>Xem chi tiết Thought → Action → Observation → Final Answer</summary><div class="timeline" style="padding:4px 0 0">${groupSteps(g.entries).map(stepCardHtml).join("")}</div></details>
+      </div></div>`;
+  }).join("") || '<div class="empty card"><div class="big">Chưa có trace</div>Chạy python src/app.py --all để tạo file.</div>';
+  document.querySelectorAll(".ev-chart").forEach(el => renderWaterfall(el, groups[+el.dataset.g].entries));
+}
+function groupSteps(entries) {
+  const steps = [];
+  for (const e of entries) {
+    let s = steps.find(x => x.step === e.step);
+    if (!s) { s = { step: e.step, thinking: false, thought: e.thought, calls: [], final: null }; steps.push(s); }
+    if (e.action_type === "TOOL_EXECUTION") s.calls.push({ ...e, rpc: null });
+    else s.final = { output: e.output, latency_ms: e.latency_ms, limit: String(e.output).startsWith("Đã đạt giới hạn") };
+  }
+  return steps;
+}
+
+/* ---------------- boot ---------------- */
+async function loadOverview() {
+  state.overview = await getJSON("/api/overview");
+  renderHeader(); renderOverview();
+}
+async function init() {
+  setupTheme(); setupTabs();
+  try { await loadOverview(); }
+  catch (e) {
+    $("#reqGrid").innerHTML = `<div class="callout bad"><span class="ci">!</span><div>Không kết nối được server dashboard: ${esc(e.message)}. Hãy chạy <span class="inline-code">python dashboard/server.py</span>.</div></div>`;
+    return;
+  }
+  renderArchitectureParams(); renderTools(); renderDemoControls();
+  loadSchedules(); loadTrace();
+  $("#recheckBtn").addEventListener("click", async ev => {
+    ev.target.disabled = true; ev.target.textContent = "Đang kiểm tra…";
+    try { await loadOverview(); } finally { ev.target.disabled = false; ev.target.textContent = "↻ Kiểm tra lại"; }
+  });
+  $("#reloadTrace").addEventListener("click", loadTrace);
+}
+init();
+</script>
+</body>
+</html>

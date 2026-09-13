@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC01",
+    "type": "direct_query",
+    "question": "Chào bạn, trước khi đi khám sức khỏe tổng quát tại Vinmec thì tôi cần chuẩn bị những gì?",
+    "expected_behavior": "Agent trả lời trực tiếp bằng kiến thức chung (nhịn ăn, mang giấy tờ...), không gọi bất kỳ Tool nào.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "single_tool_query",
+    "question": "Hãy tra cứu lịch làm việc còn trống của bác sĩ khoa Tim mạch ngày 15/09/2026.",
+    "expected_behavior": "Agent gọi Tool 'doctor_schedule_query' với specialty='Tim mạch', date='15/09/2026' và liệt kê đúng bác sĩ, khung giờ trống từ kết quả Tool.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC03",
+    "type": "appointment_booking",
+    "question": "Đặt lịch khám cho bệnh nhân BN2026001 với BS.CKII Nguyễn Minh Tuấn vào lúc 14:00 15/09/2026.",
+    "expected_behavior": "Agent gọi Tool 'schedule_appointment' với patient_id='BN2026001', doctor_name='BS.CKII Nguyễn Minh Tuấn', datetime_str='14:00 15/09/2026' và trả về mã đặt lịch (booking_id) từ kết quả Tool.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Tôi là bệnh nhân BN2026002, dạo này tôi hay bị đau họng và ù tai. Hãy tìm bác sĩ khoa Tai Mũi Họng còn lịch trống sớm nhất ngày 16/09/2026 và đặt lịch khám luôn cho tôi.",
+    "expected_behavior": "Agent thực hiện chuỗi ReAct đa bước: gọi 'doctor_schedule_query' (Tai Mũi Họng, 16/09/2026) → chọn khung giờ sớm nhất (08:00 16/09/2026 - BS.CKI Hoàng Văn Đức) → gọi 'schedule_appointment' cho BN2026002 → xác nhận mã đặt lịch.",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Tra cứu lịch làm việc của bác sĩ khoa Da liễu ngày 15/09/2026 giúp tôi.",
+    "expected_behavior": "Agent gọi 'doctor_schedule_query', nhận kết quả NOT_FOUND (chuyên khoa không có trong hệ thống) và phản hồi lịch sự, liệt kê các chuyên khoa hiện có, không bịa đặt tên bác sĩ hay khung giờ.",
+    "complexity": "Medium"
+  }
+]
