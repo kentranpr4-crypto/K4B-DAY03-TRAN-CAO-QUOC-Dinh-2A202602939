@@ -123,7 +123,7 @@ Phiên chat được lưu riêng tại `docs/trace_interactive.json` (không ghi
 - **Tổng số Test Cases đã chạy thành công:** 5 / 5 test cases.
 - **Số lượt gọi Tool qua MCP Server chính xác:** 5 lượt (TC02: 1, TC03: 1, TC04: 2, TC05: 1).
 - [x] Đã thử nghiệm chế độ đàm thoại trực tiếp `python src/app.py --interactive` với LLM API thật: 2 câu hỏi, 3 lượt gọi Tool qua MCP Server (log: `docs/trace_interactive.json`).
-- **Kết quả đẩy Repo nộp bài:** [ ] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân.
+- **Kết quả đẩy Repo nộp bài:** [X] Đã Commit và Push mã nguồn thành công lên GitHub cá nhân.
 
 ---
 
